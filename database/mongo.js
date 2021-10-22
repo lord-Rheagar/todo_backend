@@ -1,11 +1,11 @@
 var mongoose = require('mongoose')
 
-var mongodb = "mongodb://127.0.0.1:27017/my_database"
+var mongodb = "mongodb://127.0.0.1/my_todo"
 mongoose 
  .connect(mongodb, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         })   
- .then(() => console.log("Database connected!"))
- .catch(err => console.log(err));
- 
+
+  var db = mongoose.connection
+ db.on('error', console.error.bind(console, 'MongoDB Conection error'))
