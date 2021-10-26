@@ -8,6 +8,7 @@ require('./database/mongo')
 
 var indexRouter = require('./routes/index');
 var todoRouter  = require("./routes/todo")
+var authRouter  = require("./routes/auth")
 
 
 var app = express();
@@ -24,6 +25,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/api', todoRouter)
+app.use('/auth', authRouter)
 
 
 
