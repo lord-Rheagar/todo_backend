@@ -29,10 +29,31 @@ const User = new mongoose.Schema(
     }
 )
 
+// Using Mongoose hooks to hash the password before saving in the database
 User.pre("save", async function(next){
      const salt = await bcrypt.genSalt();
      this.password = await bcrypt.hash(this.password, salt)
     next()
 })
+
+// Static method to login user
+
+User.statics.login = async function(email, password){
+    const user = await this.findOne({email});
+
+    if(user)
+    {
+        const checkPassword = await bcrypt.compare(password, user.password);
+
+        if(checkPassword)
+        {
+            return user;
+        }
+
+        throw Error('Incorrect Password')
+    }
+
+    throw Error('Incorrect Email')
+}
 
 module.exports = mongoose.model("User", User)
