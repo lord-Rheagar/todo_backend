@@ -1,7 +1,7 @@
 const User = require("../models/user")
 const jwt = require("jsonwebtoken");
 const SECRET = require("../config/index")
-
+const bcrypt = require("bcrypt")
 
 const handleErrors=(err)=>{
     console.log(err.message, err.code)
@@ -32,7 +32,7 @@ const handleErrors=(err)=>{
 
    else if(err.message.includes("E11000 duplicate key error collection"))
    {
-       let error = "Entered email has already been registered"
+       let error = "User Already Exist. Please Login"
 
        return error
    }
@@ -52,14 +52,31 @@ exports.signup= async(req,res)=>{
     const {firstname, lastname, email, password} = req.body
 
     try{
-             const newUser = await User.create({firstname, lastname, email,password})
-             const token = createToken(newUser._id);
+        const salt = await bcrypt.genSalt();
+        encryptedPassword = await bcrypt.hash(password, salt)
 
-             res.cookie('jwt', token,{httpOnly:true, maxAge:maxTime*1000})
-             res.status(201).json({
-                 message:"You are successfully signed up",
-                 user: newUser
-             })
+        const newUser = await User.create({
+            firstname,
+            lastname,
+            email:email.toLowerCase(),
+            password:encryptedPassword 
+
+
+        })
+
+        const token = jwt.sign(
+            {user_id: newUser._id, email},
+            "valar morgulis",
+            {
+                expiresIn:"5h",
+            }
+        )
+
+        newUser.token = token;
+
+        res.status(201).json(newUser);
+
+
     }
     catch(err){
         const error = handleErrors(err)
@@ -68,22 +85,32 @@ exports.signup= async(req,res)=>{
         res.status(400).json({error})
 
     }
-    res.send("New user signed in")
+    
 }
 
 exports.login = async(req,res)=>{
     const {email, password} = req.body;
 
     try{
-        const user = await User.login(email,password)
-        const token = createToken(user._id);
-     
+        const user = await User.findOne({ email });
 
-        res.cookie('jwt', token,{httpOnly:true, maxAge:maxTime*1000})
-        res.status(201).json({
-            message:"You are successfully logged in",
-            user: user
-        })
+        if (user && (await bcrypt.compare(password, user.password))) {
+          
+          const token = jwt.sign(
+            { user_id: user._id, email },
+            process.env.TOKEN_KEY,
+            {
+              expiresIn: "5h",
+            }
+          );
+    
+          
+          user.token = token;
+    
+          
+          res.status(200).json(user);
+        }
+       
         
     }
     catch(err){
