@@ -2,43 +2,9 @@ const User = require("../models/user")
 const jwt = require("jsonwebtoken");
 const SECRET = require("../config/index")
 const bcrypt = require("bcrypt")
-
-const handleErrors=(err)=>{
-    console.log(err.message, err.code)
-    console.log(err)
-
-    let errors ={email:'', password:'', firstname:'', lastname:''}
-    
-
-    if(err.message==='Incorrect Email')
-    {
-        errors.email= "Email not found"
-        
-    }
-
-    if(err.message==='Incorrect Password')
-    {
-        errors.password= "Incorrect password entered"
-    }
+const handleErrors = require("../utils/errorHandling")
 
 
-
-    if(err.message.includes("User validation failed"))
-    {
-        Object.values(err.errors).forEach(({properties})=>{
-            errors[properties.path] = properties.message
-        })
-    }
-
-   else if(err.message.includes("E11000 duplicate key error collection"))
-   {
-       let error = "User Already Exist. Please Login"
-
-       return error
-   }
-
-    return errors
-}
 
 const maxTime = 2*24*60*60
 
@@ -93,12 +59,13 @@ exports.login = async(req,res)=>{
 
     try{
         const user = await User.findOne({ email });
+       
 
         if (user && (await bcrypt.compare(password, user.password))) {
           
           const token = jwt.sign(
             { user_id: user._id, email },
-            process.env.TOKEN_KEY,
+            "valar morgulis",
             {
               expiresIn: "5h",
             }

@@ -3,10 +3,14 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var passport = require('passport')
+
 
 require('./database/mongo')
 
-const {requireAuth} = require("./middlewares/authMiddleware")
+app.use(passport.initialize());
+require("./middlewares/passport")(passport)
+const requireAuth = require("./middlewares/authMiddleware")
 
 var indexRouter = require('./routes/index');
 var todoRouter  = require("./routes/todo")
