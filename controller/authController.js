@@ -3,18 +3,12 @@ const jwt = require("jsonwebtoken");
 const SECRET = require("../config/index")
 const bcrypt = require("bcrypt")
 const handleErrors = require("../utils/errorHandling")
+const passport = require("../middlewares/passport")
 
 
 
-const maxTime = 2*24*60*60
 
-const createToken =(id)=>{
-     return jwt.sign({id}, 'valar morgulis',{
-           expiresIn: maxTime
-     })
-}
-
-exports.signup= async(req,res)=>{
+const signup= async(req,res)=>{
     const {firstname, lastname, email, password} = req.body
 
     try{
@@ -30,17 +24,13 @@ exports.signup= async(req,res)=>{
 
         })
 
-        const token = jwt.sign(
-            {user_id: newUser._id, email},
-            "valar morgulis",
-            {
-                expiresIn:"5h",
-            }
-        )
+        await newUser.save();
 
-        newUser.token = token;
-
-        res.status(201).json(newUser);
+        res.status(201).json({
+            message:"You are now successfully registered",
+            success:true,  
+            user:newUser
+        });
 
 
     }
@@ -48,13 +38,17 @@ exports.signup= async(req,res)=>{
         const error = handleErrors(err)
 
         
-        res.status(400).json({error})
+        res.status(400).json({
+            message:"Unable to create your account",
+            success:false,
+            err:error
+        })
 
     }
     
 }
 
-exports.login = async(req,res)=>{
+const login = async(req,res)=>{
     const {email, password} = req.body;
 
     try{
@@ -64,18 +58,31 @@ exports.login = async(req,res)=>{
         if (user && (await bcrypt.compare(password, user.password))) {
           
           const token = jwt.sign(
-            { user_id: user._id, email },
+            { user_id: user._id, 
+            email:user.email 
+            },
+
             "valar morgulis",
             {
-              expiresIn: "5h",
+              expiresIn: "2 days",
             }
           );
     
-          
-          user.token = token;
+        
+        let result ={
+            firstname: user.firstname,
+            lastname: user.lastname,
+            email: user.email,
+            token: `Bearer ${token}`
+        }
     
           
-          res.status(200).json(user);
+          res.status(200).json({
+              ...result,
+              message:"You are successfully logged in",
+              success:true
+            }
+            );
         }
        
         
@@ -84,11 +91,20 @@ exports.login = async(req,res)=>{
         console.log(err)
         const errors = handleErrors(err)
 
+        
       res.status(400).json({
-          email: errors.email,
-          password:errors.password
+          message:"Unable to login",
+          success:false, 
+         err:errors,
       })
        
     }
 }
 
+const userAuth = passport.authenticate("jwt", {session:false})
+
+module.exports ={
+    signup,
+    login,
+    userAuth
+}

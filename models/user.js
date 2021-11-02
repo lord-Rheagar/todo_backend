@@ -26,9 +26,6 @@ const User = new mongoose.Schema(
              minlength:[8, "Minimum password is of 8 characters"]
          },
 
-         token:{
-             type:String
-         }
     }
 )
 

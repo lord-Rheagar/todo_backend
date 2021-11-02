@@ -10,7 +10,8 @@ require('./database/mongo')
 
 app.use(passport.initialize());
 require("./middlewares/passport")(passport)
-const requireAuth = require("./middlewares/authMiddleware")
+
+const {userAuth} = require("./controller/authController")
 
 var indexRouter = require('./routes/index');
 var todoRouter  = require("./routes/todo")
@@ -30,7 +31,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/api', requireAuth, todoRouter)
+app.use('/api', userAuth, todoRouter)
 app.use('/auth', authRouter)
 
 
