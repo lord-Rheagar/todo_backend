@@ -8,10 +8,7 @@ var passport = require('passport')
 
 require('./database/mongo')
 
-app.use(passport.initialize());
-require("./middlewares/passport")(passport)
 
-const {userAuth} = require("./controller/authController")
 
 var indexRouter = require('./routes/index');
 var todoRouter  = require("./routes/todo")
@@ -29,6 +26,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(passport.initialize());
+require("./middlewares/passport")(passport)
+
+const {userAuth} = require("./controller/authController")
 
 app.use('/', indexRouter);
 app.use('/api', userAuth, todoRouter)
