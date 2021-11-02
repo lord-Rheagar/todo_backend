@@ -126,7 +126,12 @@ const login = async(req,res)=>{
       res.status(400).json({
           message:"Unable to login",
           success:false, 
-         err:errors,
+         err:{
+             email: errors.email,
+             password: errors.password
+             
+
+         },
       })
        
     }

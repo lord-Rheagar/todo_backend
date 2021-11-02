@@ -45,9 +45,9 @@ User.statics.login = async function(email, password) {
       if (auth) {
         return user;
       }
-      throw Error('Incorrect password');
+      throw Error('Incorrect Password');
     }
-    throw Error('Incorrect email');
+    throw Error('Incorrect Email');
   };  
 
 
