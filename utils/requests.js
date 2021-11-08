@@ -21,11 +21,18 @@ exports.getAllTodos = (req,res)=>{
     .sort("-createdAt")
     .exec((err, todos)=>{
 
-        if(err || !todos){
+        if(err){
 
             console.log(err)
             return res.status(400).json({
                 error:"Something went wrong in finding all todos"
+            })
+        }
+
+        if(!todos)
+        {
+            return res.status(400).json({
+                error:"No Todos exist"
             })
         }
 

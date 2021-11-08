@@ -33,7 +33,7 @@ require("./middlewares/passport")(passport)
 const {userAuth} = require("./controller/authController")
 
 app.use('/', indexRouter);
-app.use('/api', userAuth, todoRouter)
+app.use('/api',userAuth,  todoRouter)
 app.use('/auth', authRouter)
 
 

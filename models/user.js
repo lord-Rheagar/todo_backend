@@ -2,7 +2,10 @@ const mongoose = require('mongoose')
 const {isEmail} = require('validator')
 const bcrypt= require("bcrypt")
 const User = new mongoose.Schema(
-    {
+    { 
+         id:{
+           type:String,
+         },
          firstname:{
              type:String,
              required: [true, "Please enter your first name"],
@@ -53,3 +56,10 @@ User.statics.login = async function(email, password) {
 
 
 module.exports = mongoose.model("User", User)
+
+
+//6188c4f82e83346df04168a9
+
+
+// "firstname":"Jaqhen",
+//    "lastname":"Hagqar",
